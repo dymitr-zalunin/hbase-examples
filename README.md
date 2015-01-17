@@ -1,2 +1,2 @@
 # hbase-in-action-examples
-A few simple programs using HBase
+Simple HBase programs.
