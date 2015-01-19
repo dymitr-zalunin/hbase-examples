@@ -1,2 +1,2 @@
 # hbase-in-action-examples
-Simple HBase programs.
+Migrate examples used throughout "HBase In Action" to HBase 0.98.
