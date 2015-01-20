@@ -9,6 +9,7 @@ import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.List;
 
 public class UsersTool {
 
@@ -42,6 +43,13 @@ public class UsersTool {
             System.out.println("Successfully added user" + user);
         }
 
+        if ("list".equals(args[0])) {
+            List<User> users = dao.getUsers();
+            log.info(String.format("Found %s users.", users.size()));
+            for(User u : users) {
+                System.out.println(u);
+            }
+        }
 
         connection.close();
 

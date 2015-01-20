@@ -5,6 +5,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsersDAO {
 
@@ -43,7 +45,13 @@ public class UsersDAO {
         return put;
     }
 
-    public User getUser(String user) throws IOException {
+    public Scan mkScan() {
+        Scan scan = new Scan();
+        scan.addFamily(INFO_FAM);
+        return scan;
+    }
+
+    public hbaseia.twitbase.model.User getUser(String user) throws IOException {
         HTableInterface users = connection.getTable(TABLE_NAME);
         Get g = mkGet(user);
         Result result = users.get(g);
@@ -62,6 +70,18 @@ public class UsersDAO {
         Put put = mkPut(new User(user, name, email, password));
         users.put(put);
         users.close();
+    }
+
+    public List<hbaseia.twitbase.model.User > getUsers() throws IOException {
+        HTableInterface users = connection.getTable(TABLE_NAME);
+        Scan scan = mkScan();
+        ResultScanner results = users.getScanner(scan);
+        List<hbaseia.twitbase.model.User > ret = new ArrayList<hbaseia.twitbase.model.User>();
+        for (Result result : results) {
+            ret.add(new User(result));
+        }
+        users.close();
+        return ret;
     }
 
     private static class User
