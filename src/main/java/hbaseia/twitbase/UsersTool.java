@@ -17,8 +17,10 @@ public class UsersTool {
 
     public static final String usage =
             "usertool action ...\n" +
+                    "  help - print this message and exit.\n" +
                     "  add user name email password - add a new user.\n" +
-                    "  get user - retrieve a specific user.\n";
+                    "  get user - retrieve a specific user.\n" +
+                    "  list - list all installed users.\n";
 
     public static void main(String[] args) throws IOException {
         if (args.length == 0 || "help".equals(args[0])) {
@@ -46,7 +48,7 @@ public class UsersTool {
         if ("list".equals(args[0])) {
             List<User> users = dao.getUsers();
             log.info(String.format("Found %s users.", users.size()));
-            for(User u : users) {
+            for (User u : users) {
                 System.out.println(u);
             }
         }
