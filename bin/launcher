@@ -5,6 +5,7 @@ if [ $# = 0 ]; then
   echo "where <command> is an option from one of the following:"
   echo ""
   echo "TwitBase tools"
+  echo "  init     : Create tables for TwitBase"
   echo "  users     : Tool for managing users"
   exit 1
 fi
@@ -14,6 +15,8 @@ echo $c
 
 if [ "$COMMAND" = "users" ]; then
   CLASS='hbaseia.twitbase.UsersTool'
+elif [ "$COMMAND" = "init" ]; then
+  CLASS='hbaseia.twitbase.InitTables'
 fi
 
 shift
