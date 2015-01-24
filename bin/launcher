@@ -20,4 +20,4 @@ elif [ "$COMMAND" = "init" ]; then
 fi
 
 shift
-java -cp target/twitbase.jar $CLASS "$@"
+java -cp target/twitbase.jar:target/lib/* $CLASS "$@"
