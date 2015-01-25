@@ -1,5 +1,6 @@
 package hbaseia.twitbase;
 
+import hbaseia.twitbase.hbase.TwitsDAO;
 import hbaseia.twitbase.hbase.UsersDAO;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -34,6 +35,13 @@ public class InitTables {
                 }
                 admin.deleteTable(UsersDAO.TABLE_NAME);
             }
+            if (admin.tableExists(TwitsDAO.TABLE_NAME)) {
+                System.out.printf("Deleting %s\n", Bytes.toString(TwitsDAO.TABLE_NAME));
+                if (admin.isTableEnabled(TwitsDAO.TABLE_NAME)) {
+                    admin.disableTable(TwitsDAO.TABLE_NAME);
+                }
+                admin.deleteTable(TwitsDAO.TABLE_NAME);
+            }
         }
 
         if (admin.tableExists(UsersDAO.TABLE_NAME)) {
@@ -45,6 +53,18 @@ public class InitTables {
             descriptor.addFamily(columnDescriptor);
             admin.createTable(descriptor);
             System.out.println("User table created.");
+        }
+
+        if (admin.tableExists(TwitsDAO.TABLE_NAME)) {
+            System.out.println("User table already exists.");
+        } else {
+            System.out.println("Creating Twits table.");
+            HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(TwitsDAO.TABLE_NAME));
+            HColumnDescriptor columnDescriptor = new HColumnDescriptor(TwitsDAO.TWITS_FAM);
+            columnDescriptor.setMaxVersions(1);
+            descriptor.addFamily(columnDescriptor);
+            admin.createTable(descriptor);
+            System.out.println("Twits table created.");
         }
     }
 
