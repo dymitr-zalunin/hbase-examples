@@ -1,10 +1,7 @@
 package hbaseia.twitbase.hbase;
 
 import org.apache.hadoop.hbase.CellUtil;
-import org.apache.hadoop.hbase.client.HConnection;
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -55,13 +52,35 @@ public class TwitsDAO {
         return put;
     }
 
+    private Get mkGet(String user, DateTime dt) {
+        Get get = new Get(mkRowKey(user, dt));
+        get.addColumn(TWITS_FAM, USER_COL);
+        get.addColumn(TWITS_FAM, TWIT_COL);
+        return get;
+    }
+
     public void postTwit(String user, DateTime dt, String text) throws IOException {
         HTableInterface twits = connection.getTable(TABLE_NAME);
 
         Put put = mkPut(new Twit(user, dt, text));
         twits.put(put);
-        
+
         twits.close();
+    }
+
+    public hbaseia.twitbase.model.Twit getTwit(String user, DateTime dt) throws IOException {
+        HTableInterface twits = connection.getTable(TABLE_NAME);
+
+        Get get = mkGet(user, dt);
+        Result result = twits.get(get);
+        if (result.isEmpty()) {
+            return null;
+        }
+
+        Twit twit = new Twit(result);
+
+        twits.close();
+        return twit;
     }
 
     private static class Twit extends hbaseia.twitbase.model.Twit {
