@@ -7,6 +7,7 @@ if [ $# = 0 ]; then
   echo "TwitBase tools"
   echo "  init     : Create tables for TwitBase"
   echo "  users     : Tool for managing users"
+  echo "  twits     : Tool for managing twits"
   exit 1
 fi
 
@@ -17,6 +18,8 @@ if [ "$COMMAND" = "users" ]; then
   CLASS='hbaseia.twitbase.UsersTool'
 elif [ "$COMMAND" = "init" ]; then
   CLASS='hbaseia.twitbase.InitTables'
+elif [ "$COMMAND" = "twits" ]; then
+  CLASS='hbaseia.twitbase.TwitsTool'
 fi
 
 shift
