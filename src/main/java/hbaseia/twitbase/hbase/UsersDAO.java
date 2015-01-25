@@ -17,6 +17,7 @@ public class UsersDAO {
     public static final byte[] NAME_COL = Bytes.toBytes("name");
     public static final byte[] EMAIL_COL = Bytes.toBytes("email");
     public static final byte[] PASS_COL = Bytes.toBytes("password");
+    public static final byte[] TWEETS_COL = Bytes.toBytes("tweet_count");
 
     private static final Logger log = Logger.getLogger(UsersDAO.class);
 
@@ -72,14 +73,23 @@ public class UsersDAO {
         users.close();
     }
 
-    public List<hbaseia.twitbase.model.User > getUsers() throws IOException {
+    public List<hbaseia.twitbase.model.User> getUsers() throws IOException {
         HTableInterface users = connection.getTable(TABLE_NAME);
         Scan scan = mkScan();
         ResultScanner results = users.getScanner(scan);
-        List<hbaseia.twitbase.model.User > ret = new ArrayList<hbaseia.twitbase.model.User>();
+        List<hbaseia.twitbase.model.User> ret = new ArrayList<hbaseia.twitbase.model.User>();
         for (Result result : results) {
             ret.add(new User(result));
         }
+        users.close();
+        return ret;
+    }
+
+    public long incTweetCount(String user) throws IOException {
+        HTableInterface users = connection.getTable(TABLE_NAME);
+
+        long ret = users.incrementColumnValue(Bytes.toBytes(user), INFO_FAM, TWEETS_COL, 1L);
+
         users.close();
         return ret;
     }

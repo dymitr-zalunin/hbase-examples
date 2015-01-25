@@ -10,8 +10,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import java.net.URI;
-
 public class InitTables {
 
     public static void main(String[] args) throws Exception {
