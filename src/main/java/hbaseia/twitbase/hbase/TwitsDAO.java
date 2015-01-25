@@ -2,13 +2,18 @@ package hbaseia.twitbase.hbase;
 
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.HConnection;
+import org.apache.hadoop.hbase.client.HTableInterface;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import sun.security.provider.MD5;
 import utils.Md5Utils;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 
 public class TwitsDAO {
 
@@ -27,7 +32,38 @@ public class TwitsDAO {
     public TwitsDAO(HConnection connection) {
         this.connection = connection;
     }
-    
+
+
+    private byte[] mkRowKey(String user, DateTime dt) {
+        byte[] userHash = Md5Utils.md5sum(user);
+        //multiply by -1 for descending order
+        byte[] timestamp = Bytes.toBytes(-1 * dt.getMillis());
+        byte[] rowKey = new byte[Md5Utils.MD5_LENGTH + longLength];
+        int offset = Bytes.putBytes(rowKey, 0, userHash, 0, userHash.length);
+        Bytes.putBytes(rowKey, offset, timestamp, 0, timestamp.length);
+        return rowKey;
+    }
+
+    private byte[] mkRowKey(Twit twit) {
+        return mkRowKey(twit.user, twit.dt);
+    }
+
+    private Put mkPut(Twit twit) {
+        Put put = new Put(mkRowKey(twit));
+        put.add(TWITS_FAM, USER_COL, Bytes.toBytes(twit.user));
+        put.add(TWITS_FAM, TWIT_COL, Bytes.toBytes(twit.text));
+        return put;
+    }
+
+    public void postTwit(String user, DateTime dt, String text) throws IOException {
+        HTableInterface twits = connection.getTable(TABLE_NAME);
+
+        Put put = mkPut(new Twit(user, dt, text));
+        twits.put(put);
+        
+        twits.close();
+    }
+
     private static class Twit extends hbaseia.twitbase.model.Twit {
 
         private Twit(Result r) {
