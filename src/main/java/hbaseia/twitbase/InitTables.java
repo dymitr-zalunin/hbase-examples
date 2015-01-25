@@ -56,7 +56,7 @@ public class InitTables {
         }
 
         if (admin.tableExists(TwitsDAO.TABLE_NAME)) {
-            System.out.println("User table already exists.");
+            System.out.println("Twits table already exists.");
         } else {
             System.out.println("Creating Twits table.");
             HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(TwitsDAO.TABLE_NAME));
