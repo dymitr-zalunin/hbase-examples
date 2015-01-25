@@ -1,5 +1,7 @@
 package hbaseia.twitbase.hbase;
 
+import com.google.common.collect.Lists;
+import hbaseia.twitbase.model.Twit;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -9,8 +11,7 @@ import sun.security.provider.MD5;
 import utils.Md5Utils;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
+import java.util.*;
 
 public class TwitsDAO {
 
@@ -59,6 +60,19 @@ public class TwitsDAO {
         return get;
     }
 
+
+    private Scan mkScan(String user) {
+        byte[] userHash = Md5Utils.md5sum(user);
+        byte[] startKey = Bytes.padTail(userHash, longLength);
+        byte[] stopKey = Bytes.padTail(userHash, longLength);
+        stopKey[Md5Utils.MD5_LENGTH - 1]++;
+
+        Scan scan = new Scan(startKey, stopKey);
+        scan.addColumn(TWITS_FAM, USER_COL);
+        scan.addColumn(TWITS_FAM, TWIT_COL);
+        return scan;
+    }
+
     public void postTwit(String user, DateTime dt, String text) throws IOException {
         HTableInterface twits = connection.getTable(TABLE_NAME);
 
@@ -81,6 +95,21 @@ public class TwitsDAO {
 
         twits.close();
         return twit;
+    }
+
+    public List<hbaseia.twitbase.model.Twit> list(String user) throws IOException {
+        HTableInterface twits = connection.getTable(TABLE_NAME);
+
+        Scan scan = mkScan(user);
+        ResultScanner scannerResults = twits.getScanner(scan);
+
+        ArrayList<hbaseia.twitbase.model.Twit> list = Lists.newArrayList();
+        for (Result result : scannerResults) {
+            list.add(new Twit(result));
+        }
+
+        twits.close();
+        return list;
     }
 
     private static class Twit extends hbaseia.twitbase.model.Twit {
