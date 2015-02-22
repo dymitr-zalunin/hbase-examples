@@ -61,6 +61,7 @@ public class TimeSpent {
 
     Configuration conf = new Configuration();
     Job job = new Job(conf, "TimeSpent");
+    job.setJarByClass(TimeSpent.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(LongWritable.class);
     job.setMapperClass(Map.class);
